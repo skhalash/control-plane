@@ -43,3 +43,8 @@ func (s *clsInstances) InsertInstance(instance internal.CLSInstance) error {
 		CreatedAt:       instance.CreatedAt,
 	})
 }
+
+
+func (s *clsInstances) AddReference(instance internal.CLSInstance, subAccountID string) error {
+	return errors.New("needs to be implemented")
+}
