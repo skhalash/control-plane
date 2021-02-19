@@ -56,13 +56,13 @@ func (_m *DeprovisionerStorage) MarkAsBeingRemoved(version int, globalAccountID 
 	return r0
 }
 
-// RemoveInstance provides a mock function with given fields: version, globalAccountID
-func (_m *DeprovisionerStorage) RemoveInstance(version int, globalAccountID string) error {
-	ret := _m.Called(version, globalAccountID)
+// RemoveInstance provides a mock function with given fields: globalAccountID
+func (_m *DeprovisionerStorage) RemoveInstance(globalAccountID string) error {
+	ret := _m.Called(globalAccountID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, string) error); ok {
-		r0 = rf(version, globalAccountID)
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(globalAccountID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -70,13 +70,13 @@ func (_m *DeprovisionerStorage) RemoveInstance(version int, globalAccountID stri
 	return r0
 }
 
-// Unreference provides a mock function with given fields: version, globalAccountID, skrInstanceID
-func (_m *DeprovisionerStorage) Unreference(version int, globalAccountID string, skrInstanceID string) error {
-	ret := _m.Called(version, globalAccountID, skrInstanceID)
+// Unreference provides a mock function with given fields: globalAccountID, skrInstanceID
+func (_m *DeprovisionerStorage) Unreference(globalAccountID string, skrInstanceID string) error {
+	ret := _m.Called(globalAccountID, skrInstanceID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, string, string) error); ok {
-		r0 = rf(version, globalAccountID, skrInstanceID)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(globalAccountID, skrInstanceID)
 	} else {
 		r0 = ret.Error(0)
 	}

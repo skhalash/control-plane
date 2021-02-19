@@ -15,7 +15,7 @@ import (
 type ProvisionerStorage interface {
 	FindInstance(globalAccountID string) (*internal.CLSInstance, bool, error)
 	InsertInstance(instance internal.CLSInstance) error
-	Reference(version int, globalAccountID, skrInstanceID string) error
+	Reference(globalAccountID, skrInstanceID string) error
 }
 
 //go:generate mockery --name=InstanceCreator --output=automock --outpkg=automock --case=underscore
@@ -63,7 +63,7 @@ func (p *provisioner) Provision(smClient servicemanager.Client, request *Provisi
 		return p.createNewInstance(smClient, request)
 	}
 
-	err = p.storage.Reference(instance.Version, instance.GlobalAccountID, request.SKRInstanceID)
+	err = p.storage.Reference(instance.GlobalAccountID, request.SKRInstanceID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "while creating a cls instance for global account %s", request.GlobalAccountID)
 	}

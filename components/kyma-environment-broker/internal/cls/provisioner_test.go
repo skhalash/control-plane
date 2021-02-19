@@ -31,7 +31,7 @@ func TestProvisionReturnsExistingInstanceIfFoundInDB(t *testing.T) {
 		GlobalAccountID: fakeGlobalAccountID,
 		Region:          fakeRegion,
 	}, true, nil)
-	storageMock.On("Reference", mock.Anything, fakeGlobalAccountID, fakeSKRInstanceID).Return(nil)
+	storageMock.On("Reference", fakeGlobalAccountID, fakeSKRInstanceID).Return(nil)
 
 	smClientMock := &smautomock.Client{}
 	creatorMock := &automock.InstanceCreator{}
@@ -214,7 +214,7 @@ func TestProvisionAddsReferenceIfFoundInDB(t *testing.T) {
 		GlobalAccountID: fakeGlobalAccountID,
 		ID:              fakeInstanceID,
 	}, true, nil)
-	storageMock.On("Reference", mock.Anything, fakeGlobalAccountID, fakeSKRInstanceID).Return(nil)
+	storageMock.On("Reference", fakeGlobalAccountID, fakeSKRInstanceID).Return(nil)
 
 	smClientMock := &smautomock.Client{}
 	creatorMock := &automock.InstanceCreator{}
