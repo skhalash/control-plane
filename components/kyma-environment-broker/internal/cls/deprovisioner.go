@@ -12,7 +12,7 @@ type DeprovisionerStorage interface {
 	FindInstance(globalAccountID string) (*internal.CLSInstance, bool, error)
 	Unreference(version int, globalAccountID, skrInstanceID string) error
 	MarkAsBeingRemoved(version int, globalAccountID, skrInstanceID string) error
-	RemoveInstance(version int, globalAccountID string) error
+	RemoveInstance(globalAccountID string) error
 }
 
 //go:generate mockery --name=InstanceRemover --output=automock --outpkg=automock --case=underscore

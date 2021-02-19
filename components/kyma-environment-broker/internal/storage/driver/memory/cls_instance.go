@@ -19,7 +19,8 @@ type clsKey struct {
 
 func NewCLSInstances() *clsInstances {
 	return &clsInstances{
-		data: make(map[clsKey]internal.CLSInstance, 0),
+		mu:   sync.Mutex{},
+		data: make(map[clsKey]internal.CLSInstance),
 	}
 }
 

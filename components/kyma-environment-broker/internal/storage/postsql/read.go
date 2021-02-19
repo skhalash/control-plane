@@ -434,6 +434,24 @@ func (r readSession) GetLMSTenant(name, region string) (dbmodel.LMSTenantDTO, db
 	return dto, nil
 }
 
+func (r readSession) GetCLSInstance(globalAccountID string) ([]dbmodel.CLSInstanceDTO, dberr.Error) {
+	var dtos []dbmodel.CLSInstanceDTO
+	_, err := r.session.
+		Select("cls_instances.id, cls_instances.global_account_id, cls_instances.region, cls_instances.created_at, cls_instance_references.skr_instance_id").
+		From(CLSInstanceTableName).
+		Where(dbr.Eq("global_account_id", globalAccountID)).
+		Join(CLSInstanceReferenceTableName, fmt.Sprintf("%s.cls_instance_id = %s.id", CLSInstanceReferenceTableName, CLSInstanceTableName)).
+		Load(&dtos)
+
+	if err != nil {
+		if err == dbr.ErrNotFound {
+			return nil, dberr.NotFound("cannot find a cls instance for global account id %s", globalAccountID)
+		}
+		return nil, dberr.Internal("failed to find a cls instance: %s", err)
+	}
+	return dtos, nil
+}
+
 func (r readSession) GetOperationStats() ([]dbmodel.OperationStatEntry, error) {
 	var rows []dbmodel.OperationStatEntry
 	_, err := r.session.SelectBySql(fmt.Sprintf("select type, state, provisioning_parameters ->> 'plan_id' AS plan_id from %s",

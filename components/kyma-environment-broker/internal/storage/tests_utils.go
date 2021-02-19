@@ -260,5 +260,20 @@ func FixTables() map[string]string {
 			kyma_version text,
 			k8s_version text
 			)`, postsql.RuntimeStateTableName),
+		postsql.CLSInstanceTableName: fmt.Sprintf(
+			`CREATE TABLE IF NOT EXISTS %s (
+			id varchar(255) PRIMARY KEY,
+			global_account_id varchar(255) NOT NULL,
+			region varchar(12) NOT NULL,
+			created_at TIMESTAMPTZ NOT NULL,
+			removed_by_skr_instance_id varchar(12),
+			unique (global_account_id, removed_by_skr_instance_id)
+				)`, postsql.CLSInstanceTableName),
+		postsql.CLSInstanceReferenceTableName: fmt.Sprintf(
+			`CREATE TABLE IF NOT EXISTS %s (
+			id SERIAL,
+			cls_instance_id varchar(255) NOT NULL,
+			skr_instance_id varchar(255) NOT NULL
+			)`, postsql.CLSInstanceReferenceTableName),
 	}
 }

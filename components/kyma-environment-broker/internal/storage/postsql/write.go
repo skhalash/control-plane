@@ -212,6 +212,44 @@ func (ws writeSession) InsertLMSTenant(dto dbmodel.LMSTenantDTO) dberr.Error {
 	return nil
 }
 
+func (ws writeSession) InsertCLSInstance(dto dbmodel.CLSInstanceDTO) dberr.Error {
+	_, err := ws.insertInto(CLSInstanceTableName).
+		Pair("id", dto.ID).
+		Pair("global_account_id", dto.GlobalAccountID).
+		Pair("region", dto.Region).
+		Pair("created_at", dto.CreatedAt).
+		Exec()
+
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			if err.Code == UniqueViolationErrorCode {
+				return dberr.AlreadyExists("cls instance already exist")
+			}
+		}
+		return dberr.Internal("Failed to insert record to %s table: %s", CLSInstanceTableName, err)
+	}
+
+	return nil
+}
+
+func (ws writeSession) InsertCLSInstanceReference(dto dbmodel.CLSInstanceReferenceDTO) dberr.Error {
+	_, err := ws.insertInto(CLSInstanceReferenceTableName).
+		Pair("cls_instance_id", dto.CLSInstanceID).
+		Pair("skr_instance_id", dto.SKRInstanceID).
+		Exec()
+
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			if err.Code == UniqueViolationErrorCode {
+				return dberr.AlreadyExists("cls instance reference already exist")
+			}
+		}
+		return dberr.Internal("Failed to insert record to %s table: %s", CLSInstanceReferenceTableName, err)
+	}
+
+	return nil
+}
+
 func (ws writeSession) UpdateOperation(op dbmodel.OperationDTO) dberr.Error {
 	res, err := ws.update(OperationTableName).
 		Where(dbr.Eq("id", op.ID)).
