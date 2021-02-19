@@ -70,13 +70,13 @@ func (_m *DeprovisionerStorage) RemoveInstance(globalAccountID string) error {
 	return r0
 }
 
-// Unreference provides a mock function with given fields: globalAccountID, skrInstanceID
-func (_m *DeprovisionerStorage) Unreference(clsInstanceID string, skrInstanceID string) error {
-	ret := _m.Called(clsInstanceID, skrInstanceID)
+// Unreference provides a mock function with given fields: version, clsInstanceID, skrInstanceID
+func (_m *DeprovisionerStorage) Unreference(version int, clsInstanceID string, skrInstanceID string) error {
+	ret := _m.Called(version, clsInstanceID, skrInstanceID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = rf(clsInstanceID, skrInstanceID)
+	if rf, ok := ret.Get(0).(func(int, string, string) error); ok {
+		r0 = rf(version, clsInstanceID, skrInstanceID)
 	} else {
 		r0 = ret.Error(0)
 	}

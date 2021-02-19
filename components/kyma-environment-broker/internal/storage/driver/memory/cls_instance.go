@@ -50,7 +50,7 @@ func (s *clsInstances) InsertInstance(instance internal.CLSInstance) error {
 	return nil
 }
 
-func (s *clsInstances) Reference(clsInstanceID, skrInstanceID string) error {
+func (s *clsInstances) Reference(version int, clsInstanceID, skrInstanceID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -65,7 +65,7 @@ func (s *clsInstances) Reference(clsInstanceID, skrInstanceID string) error {
 	return nil
 }
 
-func (s *clsInstances) Unreference(clsInstanceID, skrInstanceID string) error {
+func (s *clsInstances) Unreference(version int, clsInstanceID, skrInstanceID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

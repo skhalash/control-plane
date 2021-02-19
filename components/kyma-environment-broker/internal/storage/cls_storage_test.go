@@ -47,22 +47,34 @@ func TestClsPostgres(t *testing.T) {
 		err = storage.InsertInstance(newClsInstance)
 		require.NoError(t, err)
 
-		err = storage.Reference(newClsInstance.ID, "fake-skr-instance-id-2")
-		require.NoError(t, err)
-
-		err = storage.Reference(newClsInstance.ID, "fake-skr-instance-id-3")
+		err = storage.Reference(newClsInstance.Version, newClsInstance.ID, "fake-skr-instance-id-2")
 		require.NoError(t, err)
 
 		gotClsInstance, found, err := storage.FindInstance("fake-global-account-id")
-
-		//then
 		require.NoError(t, err)
 		require.NotNil(t, gotClsInstance)
 		require.True(t, found)
 		require.Equal(t, newClsInstance.ID, gotClsInstance.ID)
 		require.Equal(t, newClsInstance.GlobalAccountID, gotClsInstance.GlobalAccountID)
 		require.Equal(t, newClsInstance.Region, gotClsInstance.Region)
-		require.ElementsMatch(t, []string{"fake-skr-instance-id-1", "fake-skr-instance-id-2", "fake-skr-instance-id-3"}, gotClsInstance.ReferencedSKRInstanceIDs)
+		require.ElementsMatch(t, []string{"fake-skr-instance-id-1", "fake-skr-instance-id-2"}, gotClsInstance.ReferencedSKRInstanceIDs)
+		require.NoError(t, err)
+
+		err = storage.Reference(gotClsInstance.Version, newClsInstance.ID, "fake-skr-instance-id-3")
+		require.Error(t, err)
+
+		gotClsInstance, _, err = storage.FindInstance("fake-global-account-id")
+		require.NoError(t, err)
+
+		err = storage.Unreference(gotClsInstance.Version, newClsInstance.ID, "fake-skr-instance-id-2")
+		require.NoError(t, err)
+
+		gotClsInstance, _, err = storage.FindInstance("fake-global-account-id")
+		require.NoError(t, err)
+		require.Equal(t, newClsInstance.ID, gotClsInstance.ID)
+		require.Equal(t, newClsInstance.GlobalAccountID, gotClsInstance.GlobalAccountID)
+		require.Equal(t, newClsInstance.Region, gotClsInstance.Region)
+		require.ElementsMatch(t, []string{"fake-skr-instance-id-1"}, gotClsInstance.ReferencedSKRInstanceIDs)
 		require.NoError(t, err)
 	})
 }

@@ -56,13 +56,13 @@ func (_m *ProvisionerStorage) InsertInstance(instance internal.CLSInstance) erro
 	return r0
 }
 
-// Reference provides a mock function with given fields: globalAccountID, skrInstanceID
-func (_m *ProvisionerStorage) Reference(globalAccountID string, skrInstanceID string) error {
-	ret := _m.Called(globalAccountID, skrInstanceID)
+// Reference provides a mock function with given fields: version, globalAccountID, skrInstanceID
+func (_m *ProvisionerStorage) Reference(version int, globalAccountID string, skrInstanceID string) error {
+	ret := _m.Called(version, globalAccountID, skrInstanceID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = rf(globalAccountID, skrInstanceID)
+	if rf, ok := ret.Get(0).(func(int, string, string) error); ok {
+		r0 = rf(version, globalAccountID, skrInstanceID)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -6,6 +6,7 @@ import (
 )
 
 type CLSInstanceDTO struct {
+	Version                int
 	ID                     string
 	GlobalAccountID        string
 	Region                 string

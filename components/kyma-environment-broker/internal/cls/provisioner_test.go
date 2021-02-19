@@ -26,12 +26,14 @@ func TestProvisionReturnsExistingInstanceIfFoundInDB(t *testing.T) {
 	)
 
 	storageMock := &automock.ProvisionerStorage{}
-	storageMock.On("FindInstance", fakeGlobalAccountID).Return(&internal.CLSInstance{
+	instance := &internal.CLSInstance{
+		Version:         42,
 		ID:              fakeInstanceID,
 		GlobalAccountID: fakeGlobalAccountID,
 		Region:          fakeRegion,
-	}, true, nil)
-	storageMock.On("Reference", fakeInstanceID, fakeSKRInstanceID).Return(nil)
+	}
+	storageMock.On("FindInstance", fakeGlobalAccountID).Return(instance, true, nil)
+	storageMock.On("Reference", instance.Version, fakeInstanceID, fakeSKRInstanceID).Return(nil)
 
 	smClientMock := &smautomock.Client{}
 	creatorMock := &automock.InstanceCreator{}
@@ -210,11 +212,13 @@ func TestProvisionAddsReferenceIfFoundInDB(t *testing.T) {
 	)
 
 	storageMock := &automock.ProvisionerStorage{}
-	storageMock.On("FindInstance", fakeGlobalAccountID).Return(&internal.CLSInstance{
+	instance := &internal.CLSInstance{
+		Version:         42,
 		GlobalAccountID: fakeGlobalAccountID,
 		ID:              fakeInstanceID,
-	}, true, nil)
-	storageMock.On("Reference", fakeInstanceID, fakeSKRInstanceID).Return(nil)
+	}
+	storageMock.On("FindInstance", fakeGlobalAccountID).Return(instance, true, nil)
+	storageMock.On("Reference", instance.Version, fakeInstanceID, fakeSKRInstanceID).Return(nil)
 
 	smClientMock := &smautomock.Client{}
 	creatorMock := &automock.InstanceCreator{}

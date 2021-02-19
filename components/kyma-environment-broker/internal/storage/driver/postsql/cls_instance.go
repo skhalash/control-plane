@@ -56,6 +56,7 @@ func (s *clsInstances) InsertInstance(instance internal.CLSInstance) error {
 	defer session.RollbackUnlessCommitted()
 
 	if err := session.InsertCLSInstance(dbmodel.CLSInstanceDTO{
+		Version:         0,
 		ID:              instance.ID,
 		GlobalAccountID: instance.GlobalAccountID,
 		Region:          instance.Region,
@@ -78,17 +79,46 @@ func (s *clsInstances) InsertInstance(instance internal.CLSInstance) error {
 	return session.Commit()
 }
 
-func (s *clsInstances) Reference(clsInstanceID, skrInstanceID string) error {
-	session := s.NewWriteSession()
+func (s *clsInstances) Reference(version int, clsInstanceID, skrInstanceID string) error {
+	session, err := s.NewSessionWithinTransaction()
+	if err != nil {
+		return err
+	}
+	defer session.RollbackUnlessCommitted()
 
-	return session.InsertCLSInstanceReference(dbmodel.CLSInstanceReferenceDTO{
+	if err := session.InsertCLSInstanceReference(dbmodel.CLSInstanceReferenceDTO{
 		CLSInstanceID: clsInstanceID,
 		SKRInstanceID: skrInstanceID,
-	})
+	}); err != nil {
+		return err
+	}
+
+	if err := session.IncrementCLSInstanceVersion(version, clsInstanceID); err != nil {
+		return err
+	}
+
+	return session.Commit()
 }
 
-func (s *clsInstances) Unreference(clsInstanceID, skrInstanceID string) error {
-	return nil
+func (s *clsInstances) Unreference(version int, clsInstanceID, skrInstanceID string) error {
+	session, err := s.NewSessionWithinTransaction()
+	if err != nil {
+		return err
+	}
+	defer session.RollbackUnlessCommitted()
+
+	if err := session.DeleteCLSInstanceReference(dbmodel.CLSInstanceReferenceDTO{
+		CLSInstanceID: clsInstanceID,
+		SKRInstanceID: skrInstanceID,
+	}); err != nil {
+		return err
+	}
+
+	if err := session.IncrementCLSInstanceVersion(version, clsInstanceID); err != nil {
+		return err
+	}
+
+	return session.Commit()
 }
 
 func (s *clsInstances) MarkAsBeingRemoved(version int, globalAccountID, skrInstanceID string) error {
