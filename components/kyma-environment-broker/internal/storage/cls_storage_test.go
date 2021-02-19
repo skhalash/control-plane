@@ -20,7 +20,6 @@ func TestClsPostgres(t *testing.T) {
 	defer cleanupNetwork()
 
 	t.Run("CLS", func(t *testing.T) {
-		//given
 		containerCleanupFunc, cfg, err := storage.InitTestDBContainer(t, ctx, "test_DB_1")
 		require.NoError(t, err)
 		defer containerCleanupFunc()
@@ -36,7 +35,6 @@ func TestClsPostgres(t *testing.T) {
 
 		globalAccountID := "fake-global-account-id"
 
-		//when
 		newClsInstance := internal.CLSInstance{
 			ID:                       "fake-id",
 			GlobalAccountID:          globalAccountID,
@@ -46,9 +44,16 @@ func TestClsPostgres(t *testing.T) {
 		}
 		err = storage.InsertInstance(newClsInstance)
 		require.NoError(t, err)
+		t.Logf("Inserted an instance: %#v", newClsInstance)
 
-		err = storage.Reference(newClsInstance.Version, newClsInstance.ID, "fake-skr-instance-id-2")
+		skrID := "fake-skr-instance-id-2"
+		err = storage.Reference(newClsInstance.Version, newClsInstance.ID, skrID)
 		require.NoError(t, err)
+		t.Logf("Referenced an instance: %#v by an skr %s", newClsInstance, skrID)
+
+		err = storage.Reference(newClsInstance.Version, newClsInstance.ID, "fake-skr-instance-id-3")
+		require.Error(t, err)
+		t.Logf("Failed to reference an instance: %#v by an skr %s: %s", newClsInstance, skrID, err)
 
 		gotClsInstance, found, err := storage.FindInstance("fake-global-account-id")
 		require.NoError(t, err)
@@ -59,15 +64,12 @@ func TestClsPostgres(t *testing.T) {
 		require.Equal(t, newClsInstance.Region, gotClsInstance.Region)
 		require.ElementsMatch(t, []string{"fake-skr-instance-id-1", "fake-skr-instance-id-2"}, gotClsInstance.ReferencedSKRInstanceIDs)
 		require.NoError(t, err)
+		t.Logf("Found an instance: %#v", gotClsInstance)
 
-		err = storage.Reference(gotClsInstance.Version, newClsInstance.ID, "fake-skr-instance-id-3")
-		require.Error(t, err)
-
-		gotClsInstance, _, err = storage.FindInstance("fake-global-account-id")
+		skrID = "fake-skr-instance-id-2"
+		err = storage.Unreference(gotClsInstance.Version, newClsInstance.ID, skrID)
 		require.NoError(t, err)
-
-		err = storage.Unreference(gotClsInstance.Version, newClsInstance.ID, "fake-skr-instance-id-2")
-		require.NoError(t, err)
+		t.Logf("Uneferenced an instance: %#v by an skr %s", newClsInstance, skrID)
 
 		gotClsInstance, _, err = storage.FindInstance("fake-global-account-id")
 		require.NoError(t, err)
@@ -76,5 +78,6 @@ func TestClsPostgres(t *testing.T) {
 		require.Equal(t, newClsInstance.Region, gotClsInstance.Region)
 		require.ElementsMatch(t, []string{"fake-skr-instance-id-1"}, gotClsInstance.ReferencedSKRInstanceIDs)
 		require.NoError(t, err)
+		t.Logf("Found an instance: %#v", gotClsInstance)
 	})
 }

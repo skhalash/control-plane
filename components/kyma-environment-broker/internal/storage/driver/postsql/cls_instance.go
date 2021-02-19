@@ -36,6 +36,7 @@ func (s *clsInstances) FindInstance(globalAccountID string) (*internal.CLSInstan
 
 	first := dtos[0]
 	model := &internal.CLSInstance{
+		Version:         first.Version,
 		ID:              first.ID,
 		GlobalAccountID: first.GlobalAccountID,
 		Region:          first.Region,
