@@ -63,7 +63,7 @@ func (p *provisioner) Provision(smClient servicemanager.Client, request *Provisi
 		return p.createNewInstance(smClient, request)
 	}
 
-	err = p.storage.Reference(instance.GlobalAccountID, request.SKRInstanceID)
+	err = p.storage.Reference(instance.ID, request.SKRInstanceID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "while creating a cls instance for global account %s", request.GlobalAccountID)
 	}

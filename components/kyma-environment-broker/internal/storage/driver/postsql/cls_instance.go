@@ -78,21 +78,16 @@ func (s *clsInstances) InsertInstance(instance internal.CLSInstance) error {
 	return session.Commit()
 }
 
-func (s *clsInstances) Reference(version int, globalAccountID, skrInstanceID string) error {
-	session, err := s.NewWriteSession()
-	if err != nil {
-		return err
-	}
+func (s *clsInstances) Reference(clsInstanceID, skrInstanceID string) error {
+	session := s.NewWriteSession()
 
-	if err := session.InsertCLSInstanceReference(dbmodel.CLSInstanceReferenceDTO{
-		CLSInstanceID: instance.ID,
-		SKRInstanceID: instance.ReferencedSKRInstanceIDs[0],
-	}); err != nil {
-		return err
-	}
+	return session.InsertCLSInstanceReference(dbmodel.CLSInstanceReferenceDTO{
+		CLSInstanceID: clsInstanceID,
+		SKRInstanceID: skrInstanceID,
+	})
 }
 
-func (s *clsInstances) Unreference(version int, globalAccountID, skrInstanceID string) error {
+func (s *clsInstances) Unreference(clsInstanceID, skrInstanceID string) error {
 	return nil
 }
 
@@ -100,6 +95,6 @@ func (s *clsInstances) MarkAsBeingRemoved(version int, globalAccountID, skrInsta
 	return nil
 }
 
-func (s *clsInstances) RemoveInstance(version int, globalAccountID string) error {
+func (s *clsInstances) RemoveInstance(globalAccountID string) error {
 	return nil
 }

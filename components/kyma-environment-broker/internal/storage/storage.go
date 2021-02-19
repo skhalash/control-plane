@@ -44,7 +44,7 @@ func NewFromConfig(cfg Config, cipher postgres.Cipher, log logrus.FieldLogger) (
 		operation:      operation,
 		lmsTenants:     postgres.NewLMSTenants(fact),
 		orchestrations: postgres.NewOrchestrations(fact),
-		runtimeStates:  postgres.NewRuntimeStates(fact, enc),
+		runtimeStates:  postgres.NewRuntimeStates(fact, cipher),
 		clsInstances:   postgres.NewCLSInstances(fact),
 	}, connection, nil
 }

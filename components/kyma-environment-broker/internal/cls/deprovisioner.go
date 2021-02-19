@@ -10,7 +10,7 @@ import (
 //go:generate mockery --name=DeprovisionerStorage --output=automock --outpkg=automock --case=underscore
 type DeprovisionerStorage interface {
 	FindInstance(globalAccountID string) (*internal.CLSInstance, bool, error)
-	Unreference(globalAccountID, skrInstanceID string) error
+	Unreference(clsInstanceID, skrInstanceID string) error
 	MarkAsBeingRemoved(version int, globalAccountID, skrInstanceID string) error
 	RemoveInstance(globalAccountID string) error
 }
@@ -58,7 +58,7 @@ func (d *Deprovisioner) Deprovision(smClient servicemanager.Client, request *Dep
 	}
 
 	if len(instance.ReferencedSKRInstanceIDs) > 1 {
-		if err := d.storage.Unreference(request.GlobalAccountID, request.SKRInstanceID); err != nil {
+		if err := d.storage.Unreference(instance.ID, request.SKRInstanceID); err != nil {
 			return errors.Wrapf(err, "while unreferencing a cls instance for global account %s", request.GlobalAccountID)
 		}
 

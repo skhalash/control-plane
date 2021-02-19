@@ -50,11 +50,11 @@ func (s *clsInstances) InsertInstance(instance internal.CLSInstance) error {
 	return nil
 }
 
-func (s *clsInstances) Reference(version int, globalAccountID, skrInstanceID string) error {
+func (s *clsInstances) Reference(clsInstanceID, skrInstanceID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	k := clsKey{GlobalAccountID: globalAccountID}
+	k := clsKey{GlobalAccountID: clsInstanceID}
 	instance, exists := s.data[k]
 	if !exists {
 		return dberr.NotFound("instance not found")
@@ -65,12 +65,18 @@ func (s *clsInstances) Reference(version int, globalAccountID, skrInstanceID str
 	return nil
 }
 
-func (s *clsInstances) Unreference(version int, globalAccountID, skrInstanceID string) error {
+func (s *clsInstances) Unreference(clsInstanceID, skrInstanceID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	k := clsKey{GlobalAccountID: globalAccountID}
-	instance, exists := s.data[k]
+	exists := false
+	var instance internal.CLSInstance
+	for _, v := range s.data {
+		if v.ID == clsInstanceID {
+			instance = v
+		}
+	}
+
 	if !exists {
 		return dberr.NotFound("instance not found")
 	}
@@ -107,7 +113,7 @@ func (s *clsInstances) MarkAsBeingRemoved(version int, globalAccountID, skrInsta
 	return nil
 }
 
-func (s *clsInstances) RemoveInstance(version int, globalAccountID string) error {
+func (s *clsInstances) RemoveInstance(globalAccountID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

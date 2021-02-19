@@ -101,10 +101,11 @@ func TestDeprovisionUnreferencesIfNotLastReference(t *testing.T) {
 	storageMock := &automock.DeprovisionerStorage{}
 	found := &internal.CLSInstance{
 		Version:                  42,
+		ID:                       fakeInstance.InstanceID,
 		ReferencedSKRInstanceIDs: []string{fakeSKRInstanceID, "other-fake-skr-instance-id"},
 	}
 	storageMock.On("FindInstance", mock.Anything).Return(found, true, nil)
-	storageMock.On("Unreference", fakeGlobalAccountID, fakeSKRInstanceID).Return(nil)
+	storageMock.On("Unreference", fakeInstance.InstanceID, fakeSKRInstanceID).Return(nil)
 
 	deprovisioner := &Deprovisioner{
 		log:     logger.NewLogDummy(),
@@ -140,10 +141,11 @@ func TestDeprovisionFailsIfUnreferenceQueryFails(t *testing.T) {
 	storageMock := &automock.DeprovisionerStorage{}
 	found := &internal.CLSInstance{
 		Version:                  42,
+		ID:                       fakeInstance.InstanceID,
 		ReferencedSKRInstanceIDs: []string{fakeSKRInstanceID, "other-fake-skr-instance-id"},
 	}
 	storageMock.On("FindInstance", mock.Anything).Return(found, true, nil)
-	storageMock.On("Unreference", fakeGlobalAccountID, fakeSKRInstanceID).Return(errors.New("unable to connect"))
+	storageMock.On("Unreference", fakeInstance.InstanceID, fakeSKRInstanceID).Return(errors.New("unable to connect"))
 
 	smClientMock := &smautomock.Client{}
 	removerMock := &automock.InstanceRemover{}

@@ -28,7 +28,8 @@ func TestClsPostgres(t *testing.T) {
 		err = storage.InitTestDBTables(t, cfg.ConnectionURL())
 		require.NoError(t, err)
 
-		brokerStorage, _, err := storage.NewFromConfig(cfg, logrus.StandardLogger())
+		cipher := storage.NewEncrypter(cfg.SecretKey)
+		brokerStorage, _, err := storage.NewFromConfig(cfg, cipher, logrus.StandardLogger())
 		storage := brokerStorage.CLSInstances()
 		require.NotNil(t, brokerStorage)
 		require.NoError(t, err)
@@ -46,10 +47,10 @@ func TestClsPostgres(t *testing.T) {
 		err = storage.InsertInstance(newClsInstance)
 		require.NoError(t, err)
 
-		err = storage.Reference(newClsInstance.Version, globalAccountID, "fake-skr-instance-id-2")
+		err = storage.Reference(newClsInstance.ID, "fake-skr-instance-id-2")
 		require.NoError(t, err)
 
-		err = storage.Reference(newClsInstance.Version, globalAccountID, "fake-skr-instance-id-3")
+		err = storage.Reference(newClsInstance.ID, "fake-skr-instance-id-3")
 		require.NoError(t, err)
 
 		gotClsInstance, found, err := storage.FindInstance("fake-global-account-id")
