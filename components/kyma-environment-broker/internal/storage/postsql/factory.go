@@ -56,6 +56,8 @@ type WriteSession interface {
 	InsertLMSTenant(dto dbmodel.LMSTenantDTO) dberr.Error
 	InsertCLSInstance(dto dbmodel.CLSInstanceDTO) dberr.Error
 	IncrementCLSInstanceVersion(version int, clsInstanceID string) dberr.Error
+	MarkCLSInstanceAsBeingRemoved(version int, clsInstanceID, skrInstanceID string) dberr.Error
+	DeleteCLSInstance(clsInstanceID string) dberr.Error
 	InsertCLSInstanceReference(dto dbmodel.CLSInstanceReferenceDTO) dberr.Error
 	DeleteCLSInstanceReference(dto dbmodel.CLSInstanceReferenceDTO) dberr.Error
 }

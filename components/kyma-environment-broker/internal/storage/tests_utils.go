@@ -270,11 +270,12 @@ func FixTables() map[string]string {
 			removed_by_skr_instance_id varchar(255),
 			unique (global_account_id, removed_by_skr_instance_id)
 				)`, postsql.CLSInstanceTableName),
-		postsql.CLSInstanceReferenceTableName: fmt.Sprintf(
+		"x" + postsql.CLSInstanceReferenceTableName: fmt.Sprintf(
 			`CREATE TABLE IF NOT EXISTS %s (
 			id SERIAL,
 			cls_instance_id varchar(255) NOT NULL,
-			skr_instance_id varchar(255) NOT NULL
-			)`, postsql.CLSInstanceReferenceTableName),
+			skr_instance_id varchar(255) NOT NULL,
+			FOREIGN KEY(cls_instance_id) REFERENCES %s(id) ON DELETE CASCADE
+			)`, postsql.CLSInstanceReferenceTableName, postsql.CLSInstanceTableName),
 	}
 }

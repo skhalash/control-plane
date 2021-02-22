@@ -153,9 +153,11 @@ func (s *clsInstances) Unreference(version int, clsInstanceID, skrInstanceID str
 }
 
 func (s *clsInstances) MarkAsBeingRemoved(version int, clsInstanceID, skrInstanceID string) error {
-	return nil
+	session := s.NewWriteSession()
+	return session.MarkCLSInstanceAsBeingRemoved(version, clsInstanceID, skrInstanceID)
 }
 
 func (s *clsInstances) Remove(clsInstanceID string) error {
-	return nil
+	session := s.NewWriteSession()
+	return session.DeleteCLSInstance(clsInstanceID)
 }
