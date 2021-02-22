@@ -270,7 +270,7 @@ func FixTables() map[string]string {
 			removed_by_skr_instance_id varchar(255),
 			unique (global_account_id, removed_by_skr_instance_id)
 				)`, postsql.CLSInstanceTableName),
-		"x" + postsql.CLSInstanceReferenceTableName: fmt.Sprintf(
+		postsql.CLSInstanceReferenceTableName: fmt.Sprintf(
 			`CREATE TABLE IF NOT EXISTS %s (
 			id SERIAL,
 			cls_instance_id varchar(255) NOT NULL,

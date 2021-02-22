@@ -20,38 +20,22 @@ func NewCLSInstances(sessionFactory postsql.Factory) *clsInstances {
 }
 
 func (s *clsInstances) FindActiveByGlobalAccountID(globalAccountID string) (*internal.CLSInstance, bool, error) {
-	session := s.NewReadSession()
-	dtos, err := session.GetActiveCLSInstanceByGlobalAccountID(globalAccountID)
-	if err != nil {
-		if err.Code() == dberr.CodeNotFound {
-			return nil, false, nil
-		}
-
-		return nil, false, err
-	}
-
-	if len(dtos) == 0 {
-		return nil, false, nil
-	}
-
-	first := dtos[0]
-	model := &internal.CLSInstance{
-		Version:         first.Version,
-		ID:              first.ID,
-		GlobalAccountID: first.GlobalAccountID,
-		Region:          first.Region,
-		CreatedAt:       first.CreatedAt,
-	}
-	for _, dto := range dtos {
-		model.ReferencedSKRInstanceIDs = append(model.ReferencedSKRInstanceIDs, dto.SKRInstanceID)
-	}
-
-	return model, true, nil
+	return s.find(func(session postsql.ReadSession) ([]dbmodel.CLSInstanceDTO, dberr.Error) {
+		return session.GetCLSInstanceByGlobalAccountID(globalAccountID)
+	})
 }
 
 func (s *clsInstances) FindByID(clsInstanceID string) (*internal.CLSInstance, bool, error) {
+	return s.find(func(session postsql.ReadSession) ([]dbmodel.CLSInstanceDTO, dberr.Error) {
+		return session.GetCLSInstanceByID(clsInstanceID)
+	})
+}
+
+type findFunc func(session postsql.ReadSession) ([]dbmodel.CLSInstanceDTO, dberr.Error)
+
+func (s *clsInstances) find(f findFunc) (*internal.CLSInstance, bool, error) {
 	session := s.NewReadSession()
-	dtos, err := session.GetCLSInstanceByID(clsInstanceID)
+	dtos, err := f(session)
 	if err != nil {
 		if err.Code() == dberr.CodeNotFound {
 			return nil, false, nil

@@ -434,7 +434,7 @@ func (r readSession) GetLMSTenant(name, region string) (dbmodel.LMSTenantDTO, db
 	return dto, nil
 }
 
-func (r readSession) GetActiveCLSInstanceByGlobalAccountID(globalAccountID string) ([]dbmodel.CLSInstanceDTO, dberr.Error) {
+func (r readSession) GetCLSInstanceByGlobalAccountID(globalAccountID string) ([]dbmodel.CLSInstanceDTO, dberr.Error) {
 	var dtos []dbmodel.CLSInstanceDTO
 	_, err := r.session.
 		Select("cls_instances.id, cls_instances.version, cls_instances.global_account_id, cls_instances.region, cls_instances.created_at, cls_instances.removed_by_skr_instance_id, cls_instance_references.skr_instance_id").
