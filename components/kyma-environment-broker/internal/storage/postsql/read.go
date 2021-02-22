@@ -437,11 +437,11 @@ func (r readSession) GetLMSTenant(name, region string) (dbmodel.LMSTenantDTO, db
 func (r readSession) GetCLSInstanceByGlobalAccountID(globalAccountID string) ([]dbmodel.CLSInstanceDTO, dberr.Error) {
 	var dtos []dbmodel.CLSInstanceDTO
 	_, err := r.session.
-		Select("cls_instances.id, cls_instances.version, cls_instances.global_account_id, cls_instances.region, cls_instances.created_at, cls_instances.removed_by_skr_instance_id, cls_instance_references.skr_instance_id").
-		From(CLSInstanceTableName).
+		Select("a.id, a.version, a.global_account_id, a.region, a.created_at, a.removed_by_skr_instance_id, b.skr_instance_id").
+		From(dbr.I(CLSInstanceTableName).As("a")).
 		Where(dbr.Eq("global_account_id", globalAccountID)).
 		Where(dbr.Eq("removed_by_skr_instance_id", nil)).
-		Join(CLSInstanceReferenceTableName, fmt.Sprintf("%s.cls_instance_id = %s.id", CLSInstanceReferenceTableName, CLSInstanceTableName)).
+		Join(dbr.I(CLSInstanceReferenceTableName).As("b"), "b.cls_instance_id = a.id").
 		Load(&dtos)
 
 	if err != nil {
@@ -456,10 +456,10 @@ func (r readSession) GetCLSInstanceByGlobalAccountID(globalAccountID string) ([]
 func (r readSession) GetCLSInstanceByID(clsInstanceID string) ([]dbmodel.CLSInstanceDTO, dberr.Error) {
 	var dtos []dbmodel.CLSInstanceDTO
 	_, err := r.session.
-		Select("cls_instances.id, cls_instances.version, cls_instances.global_account_id, cls_instances.region, cls_instances.created_at, cls_instance_references.skr_instance_id").
-		From(CLSInstanceTableName).
-		Where(dbr.Eq("cls_instances.id", clsInstanceID)).
-		Join(CLSInstanceReferenceTableName, fmt.Sprintf("%s.cls_instance_id = %s.id", CLSInstanceReferenceTableName, CLSInstanceTableName)).
+		Select("a.id, a.version, a.global_account_id, a.region, a.created_at, a.removed_by_skr_instance_id, b.skr_instance_id").
+		From(dbr.I(CLSInstanceTableName).As("a")).
+		Where(dbr.Eq("a.id", clsInstanceID)).
+		Join(dbr.I(CLSInstanceReferenceTableName).As("b"), "b.cls_instance_id = a.id").
 		Load(&dtos)
 
 	if err != nil {
