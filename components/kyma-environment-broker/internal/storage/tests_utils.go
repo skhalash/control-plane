@@ -267,7 +267,7 @@ func FixTables() map[string]string {
 			global_account_id varchar(255) NOT NULL,
 			region varchar(12) NOT NULL,
 			created_at TIMESTAMPTZ NOT NULL,
-			removed_by_skr_instance_id varchar(12),
+			removed_by_skr_instance_id varchar(255),
 			unique (global_account_id, removed_by_skr_instance_id)
 				)`, postsql.CLSInstanceTableName),
 		postsql.CLSInstanceReferenceTableName: fmt.Sprintf(

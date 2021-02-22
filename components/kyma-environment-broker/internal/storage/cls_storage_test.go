@@ -42,7 +42,7 @@ func TestClsPostgres(t *testing.T) {
 			CreatedAt:                time.Now().UTC(),
 			ReferencedSKRInstanceIDs: []string{"fake-skr-instance-id-1"},
 		}
-		err = storage.InsertInstance(newClsInstance)
+		err = storage.Insert(newClsInstance)
 		require.NoError(t, err)
 		t.Logf("Inserted an instance: %#v", newClsInstance)
 
@@ -55,7 +55,7 @@ func TestClsPostgres(t *testing.T) {
 		require.Error(t, err)
 		t.Logf("Failed to reference an instance: %#v by an skr %s: %s", newClsInstance, skrID, err)
 
-		gotClsInstance, found, err := storage.FindInstance("fake-global-account-id")
+		gotClsInstance, found, err := storage.FindActiveByGlobalAccountID("fake-global-account-id")
 		require.NoError(t, err)
 		require.NotNil(t, gotClsInstance)
 		require.True(t, found)
@@ -71,7 +71,7 @@ func TestClsPostgres(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Uneferenced an instance: %#v by an skr %s", newClsInstance, skrID)
 
-		gotClsInstance, _, err = storage.FindInstance("fake-global-account-id")
+		gotClsInstance, _, err = storage.FindByID(newClsInstance.ID)
 		require.NoError(t, err)
 		require.Equal(t, newClsInstance.ID, gotClsInstance.ID)
 		require.Equal(t, newClsInstance.GlobalAccountID, gotClsInstance.GlobalAccountID)

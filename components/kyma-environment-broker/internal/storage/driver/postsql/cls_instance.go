@@ -19,9 +19,9 @@ func NewCLSInstances(sessionFactory postsql.Factory) *clsInstances {
 	}
 }
 
-func (s *clsInstances) FindInstance(globalAccountID string) (*internal.CLSInstance, bool, error) {
+func (s *clsInstances) FindActiveByGlobalAccountID(globalAccountID string) (*internal.CLSInstance, bool, error) {
 	session := s.NewReadSession()
-	dtos, err := session.GetCLSInstance(globalAccountID)
+	dtos, err := session.GetActiveCLSInstanceByGlobalAccountID(globalAccountID)
 	if err != nil {
 		if err.Code() == dberr.CodeNotFound {
 			return nil, false, nil
@@ -49,7 +49,37 @@ func (s *clsInstances) FindInstance(globalAccountID string) (*internal.CLSInstan
 	return model, true, nil
 }
 
-func (s *clsInstances) InsertInstance(instance internal.CLSInstance) error {
+func (s *clsInstances) FindByID(clsInstanceID string) (*internal.CLSInstance, bool, error) {
+	session := s.NewReadSession()
+	dtos, err := session.GetCLSInstanceByID(clsInstanceID)
+	if err != nil {
+		if err.Code() == dberr.CodeNotFound {
+			return nil, false, nil
+		}
+
+		return nil, false, err
+	}
+
+	if len(dtos) == 0 {
+		return nil, false, nil
+	}
+
+	first := dtos[0]
+	model := &internal.CLSInstance{
+		Version:         first.Version,
+		ID:              first.ID,
+		GlobalAccountID: first.GlobalAccountID,
+		Region:          first.Region,
+		CreatedAt:       first.CreatedAt,
+	}
+	for _, dto := range dtos {
+		model.ReferencedSKRInstanceIDs = append(model.ReferencedSKRInstanceIDs, dto.SKRInstanceID)
+	}
+
+	return model, true, nil
+}
+
+func (s *clsInstances) Insert(instance internal.CLSInstance) error {
 	session, err := s.NewSessionWithinTransaction()
 	if err != nil {
 		return err
@@ -122,10 +152,10 @@ func (s *clsInstances) Unreference(version int, clsInstanceID, skrInstanceID str
 	return session.Commit()
 }
 
-func (s *clsInstances) MarkAsBeingRemoved(version int, globalAccountID, skrInstanceID string) error {
+func (s *clsInstances) MarkAsBeingRemoved(version int, clsInstanceID, skrInstanceID string) error {
 	return nil
 }
 
-func (s *clsInstances) RemoveInstance(globalAccountID string) error {
+func (s *clsInstances) Remove(clsInstanceID string) error {
 	return nil
 }

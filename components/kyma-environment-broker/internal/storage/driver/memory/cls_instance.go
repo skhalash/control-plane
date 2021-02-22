@@ -10,7 +10,7 @@ import (
 type clsInstances struct {
 	mu sync.Mutex
 
-	data map[clsKey]internal.CLSInstance
+	data map[string]internal.CLSInstance
 }
 
 type clsKey struct {
@@ -20,16 +20,23 @@ type clsKey struct {
 func NewCLSInstances() *clsInstances {
 	return &clsInstances{
 		mu:   sync.Mutex{},
-		data: make(map[clsKey]internal.CLSInstance),
+		data: make(map[string]internal.CLSInstance),
 	}
 }
 
-func (s *clsInstances) FindInstance(globalAccountID string) (*internal.CLSInstance, bool, error) {
+func (s *clsInstances) FindActiveByGlobalAccountID(globalAccountID string) (*internal.CLSInstance, bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	k := clsKey{GlobalAccountID: globalAccountID}
-	instance, exists := s.data[k]
+	exists := false
+	var instance internal.CLSInstance
+	for _, v := range s.data {
+		if v.GlobalAccountID == globalAccountID {
+			exists = true
+			instance = v
+		}
+	}
+
 	if !exists {
 		return nil, false, nil
 	}
@@ -37,15 +44,27 @@ func (s *clsInstances) FindInstance(globalAccountID string) (*internal.CLSInstan
 	return &instance, true, nil
 }
 
-func (s *clsInstances) InsertInstance(instance internal.CLSInstance) error {
+func (s *clsInstances) FindByID(clsInstanceID string) (*internal.CLSInstance, bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	k := clsKey{GlobalAccountID: instance.GlobalAccountID}
-	if _, exists := s.data[k]; exists {
+	instance, exists := s.data[clsInstanceID]
+	if !exists {
+		return nil, false, nil
+	}
+
+	return &instance, true, nil
+}
+
+func (s *clsInstances) Insert(instance internal.CLSInstance) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	clsInstanceID := instance.ID
+	if _, exists := s.data[clsInstanceID]; exists {
 		return dberr.AlreadyExists("instance already exists")
 	}
-	s.data[k] = instance
+	s.data[clsInstanceID] = instance
 
 	return nil
 }
@@ -54,8 +73,7 @@ func (s *clsInstances) Reference(version int, clsInstanceID, skrInstanceID strin
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	k := clsKey{GlobalAccountID: clsInstanceID}
-	instance, exists := s.data[k]
+	instance, exists := s.data[clsInstanceID]
 	if !exists {
 		return dberr.NotFound("instance not found")
 	}
@@ -69,12 +87,9 @@ func (s *clsInstances) Unreference(version int, clsInstanceID, skrInstanceID str
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	exists := false
-	var instance internal.CLSInstance
-	for _, v := range s.data {
-		if v.ID == clsInstanceID {
-			instance = v
-		}
+	instance, exists := s.data[clsInstanceID]
+	if !exists {
+		return dberr.NotFound("instance not found")
 	}
 
 	if !exists {
@@ -94,12 +109,11 @@ func (s *clsInstances) Unreference(version int, clsInstanceID, skrInstanceID str
 	return nil
 }
 
-func (s *clsInstances) MarkAsBeingRemoved(version int, globalAccountID, skrInstanceID string) error {
+func (s *clsInstances) MarkAsBeingRemoved(version int, clsInstanceID, skrInstanceID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	k := clsKey{GlobalAccountID: globalAccountID}
-	instance, exists := s.data[k]
+	instance, exists := s.data[clsInstanceID]
 	if !exists {
 		return dberr.NotFound("instance not found")
 	}
@@ -113,18 +127,16 @@ func (s *clsInstances) MarkAsBeingRemoved(version int, globalAccountID, skrInsta
 	return nil
 }
 
-func (s *clsInstances) RemoveInstance(globalAccountID string) error {
+func (s *clsInstances) Remove(clsInstanceID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	k := clsKey{GlobalAccountID: globalAccountID}
-
-	_, exists := s.data[k]
+	_, exists := s.data[clsInstanceID]
 	if !exists {
 		return dberr.NotFound("instance not found")
 	}
 
-	delete(s.data, k)
+	delete(s.data, clsInstanceID)
 
 	return nil
 }
